@@ -17,6 +17,8 @@ package codeu.chat;
 
 import java.io.IOException;
 
+import codeu.chat.server.persistence.*;
+
 import codeu.chat.common.Relay;
 import codeu.chat.common.Secret;
 import codeu.chat.common.Uuid;
@@ -52,6 +54,18 @@ final class ServerMain {
 
     final int myPort = Integer.parseInt(args[2]);
 
+    // Data Persistence: default is nullpersistence which will not interact with database
+    DataPersistence persistence = new NullPersistence();
+    if (args.length > 3) {
+      int idx = 3;
+      while (idx < args.length) {
+        if (args[idx].equals("mysql")) {
+          //persistence = new MySQLPersistence();
+        }
+      }
+
+    }
+
     final RemoteAddress relayAddress = args.length > 3 ?
                                        RemoteAddress.parse(args[3]) :
                                        null;
@@ -62,7 +76,7 @@ final class ServerMain {
     ) {
 
       LOG.info("Starting server...");
-      runServer(id, secret, serverSource, relaySource);
+      runServer(id, secret, serverSource, relaySource, persistence);
 
     } catch (IOException ex) {
 
@@ -74,13 +88,14 @@ final class ServerMain {
   private static void runServer(Uuid id,
                                 byte[] secret,
                                 ConnectionSource serverSource,
-                                ConnectionSource relaySource) {
+                                ConnectionSource relaySource,
+                                DataPersistence persistence) {
 
     final Relay relay = relaySource == null ?
                         new NoOpRelay() :
                         new RemoteRelay(relaySource);
 
-    final Server server = new Server(id, secret, relay);
+    final Server server = new Server(id, secret, relay, persistence); //add param for persistence
 
     LOG.info("Created server.");
 

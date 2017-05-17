@@ -52,10 +52,21 @@ public final class ClientUser {
     } else {
 
       // TODO: check for invalid characters
+      // invalid characters are special characters !@#$%^&*()+{}[]|\/<>~`:;
+      // for (int i = 0; i < userName.length(); i++) {
+      //   if (!isValidCharacter(userName.charAt(i))) {
+      //     return false;
+      //   }
+      // }
+      // clean = true;
 
     }
     return clean;
   }
+
+  // private boolean isValidCharacter(Character ch) {
+  //   return !ch.equals('!'); // ??? is this how you compare chars i don't remember anymore
+  // }
 
   public boolean hasCurrent() {
     return (current != null);

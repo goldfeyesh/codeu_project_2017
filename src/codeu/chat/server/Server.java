@@ -23,6 +23,8 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.Collection;
 
+import codeu.chat.server.persistence.*;
+
 import codeu.chat.common.Conversation;
 import codeu.chat.common.ConversationSummary;
 import codeu.chat.common.LinearUuidGenerator;
@@ -56,13 +58,18 @@ public final class Server {
   private final Relay relay;
   private Uuid lastSeen = Uuids.NULL;
 
-  public Server(final Uuid id, final byte[] secret, final Relay relay) {
+  private DataPersistence persistence;
+
+  public Server(final Uuid id, final byte[] secret, final Relay relay, DataPersistence persistence) {
 
     this.id = id;
     this.secret = Arrays.copyOf(secret, secret.length);
 
-    this.controller = new Controller(id, model);
+    this.controller = new Controller(id, model, persistence);  // controller would get the persistence param
     this.relay = relay;
+
+    // restore state here!
+    persistence.loadUsers();
 
     timeline.scheduleNow(new Runnable() {
       @Override
@@ -125,7 +132,7 @@ public final class Server {
       final Uuid conversation = Uuids.SERIALIZER.read(in);
       final String content = Serializers.STRING.read(in);
 
-      final Message message = controller.newMessage(author, conversation, content);
+      final Message message = controller.newMessage(author, conversation, content);  // at this point, would handle database stuff in controller?
 
       Serializers.INTEGER.write(out, NetworkCode.NEW_MESSAGE_RESPONSE);
       Serializers.nullable(Message.SERIALIZER).write(out, message);
@@ -139,7 +146,7 @@ public final class Server {
 
       final String name = Serializers.STRING.read(in);
 
-      final User user = controller.newUser(name);
+      final User user = controller.newUser(name);                  // ask controller to handle adding new user to database? or
 
       Serializers.INTEGER.write(out, NetworkCode.NEW_USER_RESPONSE);
       Serializers.nullable(User.SERIALIZER).write(out, user);

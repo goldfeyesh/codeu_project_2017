@@ -26,16 +26,20 @@ import codeu.chat.common.Uuid;
 import codeu.chat.common.Uuids;
 import codeu.chat.util.Logger;
 
+import codeu.chat.server.persistence.*;
+
 public final class Controller implements RawController, BasicController {
 
   private final static Logger.Log LOG = Logger.newLog(Controller.class);
 
   private final Model model;
   private final Uuid.Generator uuidGenerator;
+  private DataPersistence persistence;
 
-  public Controller(Uuid serverId, Model model) {
+  public Controller(Uuid serverId, Model model, DataPersistence persistence) {
     this.model = model;
     this.uuidGenerator = new RandomUuidGenerator(serverId, System.currentTimeMillis());
+    this.persistence = persistence;
   }
 
   @Override
@@ -98,7 +102,8 @@ public final class Controller implements RawController, BasicController {
         foundConversation.users.add(foundUser.id);
       }
     }
-
+    persistence.saveMessage(message);                 // add user to database
+    persistence.saveConversation(foundConversation);  // update conversation in database
     return message;
   }
 
@@ -111,6 +116,7 @@ public final class Controller implements RawController, BasicController {
 
       user = new User(id, name, creationTime);
       model.add(user);
+      persistence.saveUser(user);
 
       LOG.info(
           "newUser success (user.id=%s user.name=%s user.time=%s)",
@@ -143,7 +149,7 @@ public final class Controller implements RawController, BasicController {
 
       LOG.info("Conversation added: " + conversation.id);
     }
-
+    persistence.saveConversation();
     return conversation;
   }
 

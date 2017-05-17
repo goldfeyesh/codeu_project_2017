@@ -23,16 +23,18 @@ import codeu.chat.common.Conversation;
 import codeu.chat.common.Message;
 import codeu.chat.common.User;
 import codeu.chat.common.Uuids;
+import codeu.chat.server.persistence.*;
 
 public final class BasicControllerTest {
 
   private Model model;
   private BasicController controller;
+  private DataPersistence persistence;
 
   @Before
   public void doBefore() {
     model = new Model();
-    controller = new Controller(Uuids.NULL, model);
+    controller = new Controller(Uuids.NULL, model, persistence);
   }
 
   @Test

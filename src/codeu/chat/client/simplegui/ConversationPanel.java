@@ -125,6 +125,7 @@ public final class ConversationPanel extends JPanel {
           String s = JOptionPane.showInputDialog(
               ConversationPanel.this, "Enter title:", "Add Conversation", JOptionPane.PLAIN_MESSAGE);
           while (s != null && s.length() > 64) {     // in case the conversation title is too long, notify the user and prompt again.
+                                                     // shouldn't I be using the ClientConversation class's isValidTitle?
             s = JOptionPane.showInputDialog(
                 ConversationPanel.this, "Please enter a shorter conversation title and try again.",
                 "Add Conversation", JOptionPane.PLAIN_MESSAGE);
