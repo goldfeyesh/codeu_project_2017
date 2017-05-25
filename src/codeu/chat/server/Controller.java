@@ -40,6 +40,9 @@ public final class Controller implements RawController, BasicController {
     this.model = model;
     this.uuidGenerator = new RandomUuidGenerator(serverId, System.currentTimeMillis());
     this.persistence = persistence;
+    if (persistence == null) {
+      this.persistence = new NullPersistence();
+    }
   }
 
   @Override
@@ -102,7 +105,7 @@ public final class Controller implements RawController, BasicController {
         foundConversation.users.add(foundUser.id);
       }
     }
-    persistence.saveMessage(message);                 // add user to database
+    persistence.saveMessage(message, foundConversation);                 // add user to database
     persistence.saveConversation(foundConversation);  // update conversation in database
     return message;
   }
@@ -149,7 +152,7 @@ public final class Controller implements RawController, BasicController {
 
       LOG.info("Conversation added: " + conversation.id);
     }
-    persistence.saveConversation();
+    persistence.saveConversation(conversation);
     return conversation;
   }
 

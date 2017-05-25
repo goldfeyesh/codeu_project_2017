@@ -15,5 +15,6 @@
 # limitations under the License.
 
 set -e
-
-java -cp ./third_party/junit4.jar:./bin codeu.chat.TestRunner
+#java -cp ./third_party/junit4.jar:./bin codeu.chat.TestRunner
+# java -classpath /C:/Users/Alice/Documents/GitHub/codeu_project_2017/third_party/junit4.jar org.junit.runner.JUnitCore codeu.chat.TestRunner2
+java -classpath 'C:/Users/Alice/Documents/GitHub/codeu_project_2017/third_party/junit4.jar;./third_party/mysql-connector-java-5.1.42-bin.jar;C:/Users/Alice/Documents/GitHub/codeu_project_2017/bin' codeu.chat.TestRunner
