@@ -16,9 +16,10 @@ import codeu.chat.common.User;
 import codeu.chat.common.Uuid;
 import codeu.chat.common.Uuids;
 import codeu.chat.util.Logger;
+import codeu.chat.server.persistence.dao.ResultNotFoundException;
 
 public interface UserDao {
 
   void saveUser(User user) throws SQLException, ResultNotFoundException;
-  List<User> getAllUsers();
+  List<User> getAllUsers() throws SQLException;
 }

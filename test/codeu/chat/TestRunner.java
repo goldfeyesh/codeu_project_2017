@@ -29,7 +29,9 @@ public final class TestRunner {
              codeu.chat.server.BasicControllerTest.class,
              codeu.chat.server.RawControllerTest.class,
              codeu.chat.util.store.StoreTest.class,
-             codeu.chat.server.persistence.mysql.UserDaoMySQLTest.class
+             codeu.chat.server.persistence.mysql.UserDaoMySQLTest.class,
+             codeu.chat.server.persistence.mysql.ConversationDaoMySQLTest.class,
+             codeu.chat.server.persistence.mysql.MessageDaoMySQLTest.class
          );
       for (final Failure failure : result.getFailures()) {
          System.out.println(failure.toString());

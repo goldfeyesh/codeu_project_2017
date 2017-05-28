@@ -1,4 +1,5 @@
 package codeu.chat.server.persistence.dao;
+import java.sql.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -14,9 +15,10 @@ import codeu.chat.common.User;
 import codeu.chat.common.Uuid;
 import codeu.chat.common.Uuids;
 import codeu.chat.util.Logger;
+import codeu.chat.server.persistence.dao.ResultNotFoundException;
 
 public interface MessageDao {
 
-  void saveMessage(Message message);
-  List<Message> getAllMessages(Conversation conversation);
+  void saveMessage(Message message) throws SQLException, ResultNotFoundException;
+  List<Message> getAllMessages() throws SQLException;
 }

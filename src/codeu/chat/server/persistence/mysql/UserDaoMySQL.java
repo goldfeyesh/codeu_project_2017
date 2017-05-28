@@ -3,6 +3,7 @@ import java.sql.*;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 
@@ -28,8 +29,7 @@ public class UserDaoMySQL implements UserDao {
       Connection conn = MySQLConnectionFactory.getInstance().getConnection();
 
       // the mysql insert statement
-      String query = "insert into users (id, username, time_created)"
-                   + " values(?, ?, ?)";
+      String query = "insert into users (id, username, time_created) values(?, ?, ?)";
 
       // create the mysql insert preparedstatement
       PreparedStatement preparedStmt = conn.prepareStatement(query);
@@ -85,7 +85,26 @@ public class UserDaoMySQL implements UserDao {
     }
   }
 
-  public List<User> getAllUsers() {
-    return null;
+  public List<User> getAllUsers() throws SQLException{
+    try {
+      Connection conn = MySQLConnectionFactory.getInstance().getConnection();
+      Statement stmt = conn.createStatement();
+      String query = "select * from users";
+
+      ResultSet rset = stmt.executeQuery(query);
+      ArrayList<User> users = new ArrayList<User>();
+
+      while(rset.next()) {
+        long ms = rset.getTime("time_created").getTime();
+        Time time = Time.fromMs(ms);
+        User user = new User(Uuids.fromString(rset.getString("id")), rset.getString("username"), time);
+        users.add(user);
+      }
+
+      return users;
+    } catch (SQLException ex) {
+      ex.printStackTrace();
+      throw ex;
+    }
   }
 }

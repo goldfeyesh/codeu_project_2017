@@ -18,50 +18,56 @@ import codeu.chat.server.persistence.dao.ResultNotFoundException;
 
 import codeu.chat.server.Model;
 
-public final class UserDaoMySQLTest {
+public final class MessageDaoMySQLTest {
 
   private Model model;
   private BasicController controller;
   private DataPersistence persistence;
-  private UserDaoMySQL userDaoMySQL;
+  private MessageDaoMySQL messageDaoMySQL;
   private User user;
-  private User user2;
+  private Conversation conversation;
+  private Message message1;
+  private Message message2;
 
   @Before
   public void doBefore() {
     model = new Model();
     controller = new Controller(Uuids.NULL, model, persistence);
-    userDaoMySQL = new UserDaoMySQL();
+    messageDaoMySQL = new MessageDaoMySQL();
     user = controller.newUser("user");
-    user2 = controller.newUser("user2");
+    conversation = controller.newConversation("conversation", user.id);
+    message1 = controller.newMessage(user.id, conversation.id, "message1");
+    message2 = controller.newMessage(user.id, conversation.id, "message2");
   }
 
   @Test
-  public void testSaveUser() {
+  public void testSaveMessage() {
     try {
-      userDaoMySQL.saveUser(user);
-      userDaoMySQL.saveUser(user2);
-
-      User foundUser = userDaoMySQL.getUser(user.id);
-      assertTrue("found user's id matches saved user's id",
-                 foundUser.id.toString().equals(user.id.toString()));
-
+      messageDaoMySQL.saveMessage(message1);
+      messageDaoMySQL.saveMessage(message2);
     } catch (SQLException ex) {
       ex.printStackTrace();
-    } catch (ResultNotFoundException e) {
-      e.printStackTrace();
     }
   }
 
   @Test
-  public void testGetAllUsers() {
+  public void testUpdateMessage() {
     try {
-      List<User> users = userDaoMySQL.getAllUsers();
+      MessageDaoMySQL.updateMessage(message1, message2.id, null);
+    } catch (SQLException ex) {
+      ex.printStackTrace();
+    }
+  }
 
-      assertTrue("There are 2 users saved in the database.", users.size() == 2);
+  @Test
+  public void testGetAllMessages() {
+    try {
+      List<Message> messages = messageDaoMySQL.getAllMessages();
 
-      userDaoMySQL.deleteUser(user);
-      userDaoMySQL.deleteUser(user2);
+      assertTrue("There are 2 messages saved in the database.", messages.size() == 2);
+
+      messageDaoMySQL.deleteMessage(message1);
+      messageDaoMySQL.deleteMessage(message2);
 
     } catch (SQLException ex) {
       ex.printStackTrace();

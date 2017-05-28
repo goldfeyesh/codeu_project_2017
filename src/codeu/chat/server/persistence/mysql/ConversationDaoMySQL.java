@@ -3,6 +3,7 @@ import java.sql.*;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 
@@ -48,16 +49,32 @@ public class ConversationDaoMySQL implements ConversationDao {
     }
   }
 
-  public void deleteConversation(Conversation conversation) throws SQLException {  // for testing purposes, delete users
-    String query = "delete from conversation where id = ?";
+  public void deleteConversation(Conversation conversation) throws SQLException {  // for testing purposes, delete conversations
     try {
+      String query = "delete from conversation where id = ?";
       Connection conn = MySQLConnectionFactory.getInstance().getConnection();
       PreparedStatement preparedStmt = conn.prepareStatement(query);
       preparedStmt.setString(1, conversation.id.toString());
       int count = preparedStmt.executeUpdate();
       conn.close();
     } catch (SQLException ex) {
-      ex.printStackTrace();
+      throw ex;
+    }
+  }
+
+  public static void updateConversation(Conversation conversation, Uuid first_message_id, Uuid last_message_id) throws SQLException{
+    try {
+      String query = "update conversation set first_message_id = ?, last_message_id = ? where id = ?";
+      Connection conn = MySQLConnectionFactory.getInstance().getConnection();
+      PreparedStatement preparedStmt = conn.prepareStatement(query);
+
+      preparedStmt.setString(1, first_message_id.toString());
+      preparedStmt.setString(2, last_message_id.toString());
+      preparedStmt.setString(3, conversation.id.toString());
+
+      preparedStmt.executeUpdate();
+      conn.close();
+    } catch (SQLException ex) {
       throw ex;
     }
   }
@@ -65,7 +82,7 @@ public class ConversationDaoMySQL implements ConversationDao {
   public Conversation getConversation(Uuid id) throws SQLException, ResultNotFoundException {
     try {
       Connection conn = MySQLConnectionFactory.getInstance().getConnection();
-      String query = "select id, username, time_created from users where id = ?;";
+      String query = "select id, owner_id, time_created, title from conversation where id = ?;";
       PreparedStatement preparedStmt = conn.prepareStatement(query);
       preparedStmt.setString(1, id.toString());
       ResultSet rset = preparedStmt.executeQuery();
@@ -81,12 +98,30 @@ public class ConversationDaoMySQL implements ConversationDao {
         throw new ResultNotFoundException("Could not find the conversation with id:" + id.toString());
       }
     } catch (SQLException ex) {
-      ex.printStackTrace();
       throw ex;
     }
   }
 
-  public List<Conversation> getAllConversations(){
-    return null;
+  public List<Conversation> getAllConversations() throws SQLException {
+    try {
+      Connection conn = MySQLConnectionFactory.getInstance().getConnection();
+      Statement stmt = conn.createStatement();
+      String query = "select * from conversation";
+
+      ResultSet rset = stmt.executeQuery(query);
+      ArrayList<Conversation> conversations = new ArrayList<Conversation>();
+
+      while(rset.next()) {
+        long ms = rset.getTime("time_created").getTime();
+        Time time = Time.fromMs(ms);
+        Conversation conversation = new Conversation(Uuids.fromString(rset.getString("id")),
+                                                     Uuids.fromString(rset.getString("owner_id")),
+                                                     time, rset.getString("title"));
+        conversations.add(conversation);
+      }
+      return conversations;
+    } catch (SQLException ex) {
+      throw ex;
+    }
   }
 }
