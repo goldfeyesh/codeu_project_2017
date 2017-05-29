@@ -21,13 +21,12 @@ import codeu.chat.server.persistence.*;
 
 import codeu.chat.common.Relay;
 import codeu.chat.common.Secret;
-import codeu.chat.common.Uuid;
-import codeu.chat.common.Uuids;
 import codeu.chat.server.NoOpRelay;
 import codeu.chat.server.RemoteRelay;
 import codeu.chat.server.Server;
 import codeu.chat.util.Logger;
 import codeu.chat.util.RemoteAddress;
+import codeu.chat.util.Uuid;
 import codeu.chat.util.connections.ClientConnectionSource;
 import codeu.chat.util.connections.Connection;
 import codeu.chat.util.connections.ConnectionSource;
@@ -49,10 +48,20 @@ final class ServerMain {
 
     LOG.info("============================= START OF LOG =============================");
 
-    final Uuid id = Uuids.fromString(args[0]);
+    final int myPort = Integer.parseInt(args[2]);
     final byte[] secret = Secret.parse(args[1]);
 
-    final int myPort = Integer.parseInt(args[2]);
+    Uuid id = null;
+    try {
+      id = Uuid.parse(args[0]);
+    } catch (IOException ex) {
+      System.out.println("Invalid id - shutting down server");
+      System.exit(1);
+    }
+
+    // This is the directory where it is safe to store data accross runs
+    // of the server.
+    final String persistentPath = args[3];
 
     // Data Persistence: default is nullpersistence which will not interact with database
     DataPersistence persistence = new NullPersistence();
@@ -66,8 +75,8 @@ final class ServerMain {
 
     }
 
-    final RemoteAddress relayAddress = args.length > 3 ?
-                                       RemoteAddress.parse(args[3]) :
+    final RemoteAddress relayAddress = args.length > 4 ?
+                                       RemoteAddress.parse(args[4]) :
                                        null;
 
     try (

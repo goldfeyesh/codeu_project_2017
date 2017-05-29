@@ -1,5 +1,6 @@
 package codeu.chat.server.persistence.mysql;
 import java.sql.*;
+import java.io.IOException;
 
 import java.util.Collection;
 import java.util.List;
@@ -11,14 +12,13 @@ import codeu.chat.common.BasicController;
 import codeu.chat.common.Conversation;
 import codeu.chat.common.Message;
 import codeu.chat.common.RawController;
-import codeu.chat.common.Time;
+import codeu.chat.util.Time;
 
 import codeu.chat.common.User;
 import codeu.chat.server.persistence.dao.UserDao;
 import codeu.chat.server.persistence.dao.ResultNotFoundException;
 
-import codeu.chat.common.Uuid;
-import codeu.chat.common.Uuids;
+import codeu.chat.util.Uuid;
 import codeu.chat.util.Logger;
 
 public class UserDaoMySQL implements UserDao {
@@ -64,7 +64,9 @@ public class UserDaoMySQL implements UserDao {
   }
 
   public User getUser(Uuid id) throws SQLException, ResultNotFoundException {
+    User user = null;
     try {
+
       Connection conn = MySQLConnectionFactory.getInstance().getConnection();
       String query = "select id, username, time_created from users where id = ?;";
       PreparedStatement preparedStmt = conn.prepareStatement(query);
@@ -73,37 +75,51 @@ public class UserDaoMySQL implements UserDao {
       if (rset.next()) {
         long ms = rset.getTime("time_created").getTime();
         Time time = Time.fromMs(ms);
-        User user = new User(Uuids.fromString(rset.getString("id")), rset.getString("username"), time);
-        return user;
+        user = new User(Uuid.fromToString(rset.getString("id")), rset.getString("username"), time);
       }
       else {
         throw new ResultNotFoundException("Could not find the user with id:" + id.toString());
       }
     } catch (SQLException ex) {
-      ex.printStackTrace();
       throw ex;
+    } catch (IOException ex) {
+      ex.printStackTrace();
     }
+    return user;
   }
 
   public List<User> getAllUsers() throws SQLException{
+    ArrayList<User> users = new ArrayList<User>();
     try {
       Connection conn = MySQLConnectionFactory.getInstance().getConnection();
       Statement stmt = conn.createStatement();
       String query = "select * from users";
 
       ResultSet rset = stmt.executeQuery(query);
-      ArrayList<User> users = new ArrayList<User>();
 
       while(rset.next()) {
         long ms = rset.getTime("time_created").getTime();
         Time time = Time.fromMs(ms);
-        User user = new User(Uuids.fromString(rset.getString("id")), rset.getString("username"), time);
+        User user = new User(Uuid.fromToString(rset.getString("id")), rset.getString("username"), time);
         users.add(user);
       }
-
       return users;
     } catch (SQLException ex) {
+      throw ex;
+    } catch (IOException ex) {
       ex.printStackTrace();
+    }
+    return users;
+  }
+
+  public void clearUsers() throws SQLException {
+    try {
+      Connection conn = MySQLConnectionFactory.getInstance().getConnection();
+      Statement stmt = conn.createStatement();
+      String query = "delete from users";
+
+      stmt.executeUpdate(query);
+    } catch (SQLException ex) {
       throw ex;
     }
   }

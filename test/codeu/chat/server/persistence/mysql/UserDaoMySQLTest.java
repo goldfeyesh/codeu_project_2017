@@ -11,7 +11,7 @@ import codeu.chat.common.BasicController;
 import codeu.chat.common.Conversation;
 import codeu.chat.common.Message;
 import codeu.chat.common.User;
-import codeu.chat.common.Uuids;
+import codeu.chat.util.Uuid;
 import codeu.chat.server.persistence.*;
 import codeu.chat.server.persistence.mysql.*;
 import codeu.chat.server.persistence.dao.ResultNotFoundException;
@@ -30,7 +30,7 @@ public final class UserDaoMySQLTest {
   @Before
   public void doBefore() {
     model = new Model();
-    controller = new Controller(Uuids.NULL, model, persistence);
+    controller = new Controller(Uuid.NULL, model, persistence);
     userDaoMySQL = new UserDaoMySQL();
     user = controller.newUser("user");
     user2 = controller.newUser("user2");
@@ -39,6 +39,7 @@ public final class UserDaoMySQLTest {
   @Test
   public void testSaveUser() {
     try {
+      userDaoMySQL.clearUsers();
       userDaoMySQL.saveUser(user);
       userDaoMySQL.saveUser(user2);
 
@@ -46,9 +47,13 @@ public final class UserDaoMySQLTest {
       assertTrue("found user's id matches saved user's id",
                  foundUser.id.toString().equals(user.id.toString()));
 
+      userDaoMySQL.deleteUser(user);
+      userDaoMySQL.deleteUser(user2);
     } catch (SQLException ex) {
+      System.out.println("SQLException");
       ex.printStackTrace();
     } catch (ResultNotFoundException e) {
+      System.out.println("ResultNotFoundException");
       e.printStackTrace();
     }
   }
@@ -56,13 +61,13 @@ public final class UserDaoMySQLTest {
   @Test
   public void testGetAllUsers() {
     try {
+      userDaoMySQL.saveUser(user);
+      userDaoMySQL.saveUser(user2);
+
       List<User> users = userDaoMySQL.getAllUsers();
 
       assertTrue("There are 2 users saved in the database.", users.size() == 2);
-
-      userDaoMySQL.deleteUser(user);
-      userDaoMySQL.deleteUser(user2);
-
+      userDaoMySQL.clearUsers();
     } catch (SQLException ex) {
       ex.printStackTrace();
     }

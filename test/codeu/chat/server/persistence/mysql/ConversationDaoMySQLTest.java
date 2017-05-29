@@ -13,7 +13,7 @@ import codeu.chat.common.Message;
 import codeu.chat.common.User;
 import codeu.chat.common.Conversation;
 import codeu.chat.common.Message;
-import codeu.chat.common.Uuids;
+import codeu.chat.util.Uuid;
 import codeu.chat.server.persistence.*;
 import codeu.chat.server.persistence.mysql.*;
 import codeu.chat.server.persistence.dao.ResultNotFoundException;
@@ -35,7 +35,7 @@ public final class ConversationDaoMySQLTest {
   @Before
   public void doBefore() {
     model = new Model();
-    controller = new Controller(Uuids.NULL, model, persistence);
+    controller = new Controller(Uuid.NULL, model, persistence);
     conversationDaoMySQL = new ConversationDaoMySQL();
     user = controller.newUser("username");
     conv1 = controller.newConversation("conv1", user.id);
@@ -46,6 +46,7 @@ public final class ConversationDaoMySQLTest {
   @Test
   public void testSaveConversation() {
     try {
+      conversationDaoMySQL.clearConversations();
       conversationDaoMySQL.saveConversation(conv1);
       conversationDaoMySQL.saveConversation(conv2);
       Conversation foundConversation = conversationDaoMySQL.getConversation(conv1.id);
@@ -83,8 +84,7 @@ public final class ConversationDaoMySQLTest {
 
       assertTrue("There are 2 conversations saved in the database.", conversations.size() == 2);
 
-      conversationDaoMySQL.deleteConversation(conv1);
-      conversationDaoMySQL.deleteConversation(conv2);
+      conversationDaoMySQL.clearConversations();
     } catch (SQLException ex) {
       ex.printStackTrace();
     }

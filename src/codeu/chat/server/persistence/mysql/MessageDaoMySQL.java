@@ -1,6 +1,6 @@
 package codeu.chat.server.persistence.mysql;
 import java.sql.*;
-
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
@@ -11,14 +11,13 @@ import codeu.chat.common.BasicController;
 import codeu.chat.common.Conversation;
 import codeu.chat.common.Message;
 import codeu.chat.common.RawController;
-import codeu.chat.common.Time;
+import codeu.chat.util.Time;
 
 import codeu.chat.common.Message;
 import codeu.chat.server.persistence.dao.MessageDao;
 import codeu.chat.server.persistence.dao.ResultNotFoundException;
 
-import codeu.chat.common.Uuid;
-import codeu.chat.common.Uuids;
+import codeu.chat.util.Uuid;
 import codeu.chat.util.Logger;
 
 public class MessageDaoMySQL implements MessageDao {
@@ -62,7 +61,6 @@ public class MessageDaoMySQL implements MessageDao {
       int count = preparedStmt.executeUpdate();
       conn.close();
     } catch (SQLException ex) {
-      ex.printStackTrace();
       throw ex;
     }
   }
@@ -85,6 +83,7 @@ public class MessageDaoMySQL implements MessageDao {
   }
 
   public Message getMessage(Uuid id) throws SQLException, ResultNotFoundException {
+    Message message = null;
     try {
       Connection conn = MySQLConnectionFactory.getInstance().getConnection();
       String query = "select id, next_id, previous_id, time_created, author_id, content from messages where id = ?;";
@@ -94,47 +93,62 @@ public class MessageDaoMySQL implements MessageDao {
       if (rset.next()) {
         long ms = rset.getTime("time_created").getTime();
         Time time = Time.fromMs(ms);
-        Message message = new Message(Uuids.fromString(rset.getString("id")),
-                                      Uuids.fromString(rset.getString("next_id")),
-                                      Uuids.fromString(rset.getString("previous_id")),
+        message = new Message(Uuid.fromToString(rset.getString("id")),
+                                      Uuid.fromToString(rset.getString("next_id")),
+                                      Uuid.fromToString(rset.getString("previous_id")),
                                       time,
-                                      Uuids.fromString(rset.getString("author_id")),
+                                      Uuid.fromToString(rset.getString("author_id")),
                                       rset.getString("content"));
-        return message;
       }
       else {
         throw new ResultNotFoundException("Could not find the message with id:" + id.toString());
       }
     } catch (SQLException ex) {
-      ex.printStackTrace();
       throw ex;
+    } catch (IOException ex) {
+      ex.printStackTrace();
     }
+    return message;
   }
 
   public List<Message> getAllMessages() throws SQLException {
+    ArrayList<Message> messages = new ArrayList<Message>();
     try {
       Connection conn = MySQLConnectionFactory.getInstance().getConnection();
       Statement stmt = conn.createStatement();
-      String query = "select * from conversation";
+      String query = "select * from conversation_messages";
 
       ResultSet rset = stmt.executeQuery(query);
-      ArrayList<Message> messages = new ArrayList<Message>();
 
       while(rset.next()) {
         long ms = rset.getTime("time_created").getTime();
         Time time = Time.fromMs(ms);
-        Message message = new Message(Uuids.fromString(rset.getString("id")),
-                                      Uuids.fromString(rset.getString("next_id")),
-                                      Uuids.fromString(rset.getString("previous_id")),
+        Message message = new Message(Uuid.fromToString(rset.getString("id")),
+                                      Uuid.fromToString(rset.getString("next_id")),
+                                      Uuid.fromToString(rset.getString("previous_id")),
                                       time,
-                                      Uuids.fromString(rset.getString("author_id")),
+                                      Uuid.fromToString(rset.getString("author_id")),
                                       rset.getString("content"));
         messages.add(message);
       }
 
-      return messages;
     } catch (SQLException ex) {
       ex.printStackTrace();
+      throw ex;
+    } catch (IOException ex) {
+      ex.printStackTrace();
+    }
+    return messages;
+  }
+
+  public void clearMessages() throws SQLException {
+    try {
+      Connection conn = MySQLConnectionFactory.getInstance().getConnection();
+      Statement stmt = conn.createStatement();
+      String query = "delete from conversation_messages";
+
+      stmt.executeUpdate(query);
+    } catch (SQLException ex) {
       throw ex;
     }
   }

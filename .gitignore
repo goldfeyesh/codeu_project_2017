@@ -5,3 +5,8 @@ make.sh
 make.sh
 *.sh
 test.sh
+run_client.sh
+run_relay.sh
+*.sh
+*.sh
+*.sh

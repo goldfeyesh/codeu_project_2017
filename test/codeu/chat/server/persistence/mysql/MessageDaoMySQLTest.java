@@ -11,13 +11,12 @@ import codeu.chat.common.BasicController;
 import codeu.chat.common.Conversation;
 import codeu.chat.common.Message;
 import codeu.chat.common.User;
-import codeu.chat.common.Uuids;
+import codeu.chat.util.Uuid;
 import codeu.chat.server.persistence.*;
 import codeu.chat.server.persistence.mysql.*;
 import codeu.chat.server.persistence.dao.ResultNotFoundException;
 
 import codeu.chat.server.Model;
-
 public final class MessageDaoMySQLTest {
 
   private Model model;
@@ -32,7 +31,7 @@ public final class MessageDaoMySQLTest {
   @Before
   public void doBefore() {
     model = new Model();
-    controller = new Controller(Uuids.NULL, model, persistence);
+    controller = new Controller(Uuid.NULL, model, persistence);
     messageDaoMySQL = new MessageDaoMySQL();
     user = controller.newUser("user");
     conversation = controller.newConversation("conversation", user.id);
@@ -43,6 +42,7 @@ public final class MessageDaoMySQLTest {
   @Test
   public void testSaveMessage() {
     try {
+      messageDaoMySQL.clearMessages();
       messageDaoMySQL.saveMessage(message1);
       messageDaoMySQL.saveMessage(message2);
     } catch (SQLException ex) {
@@ -53,7 +53,7 @@ public final class MessageDaoMySQLTest {
   @Test
   public void testUpdateMessage() {
     try {
-      MessageDaoMySQL.updateMessage(message1, message2.id, null);
+      MessageDaoMySQL.updateMessage(message1, message2.id, message2.id);
     } catch (SQLException ex) {
       ex.printStackTrace();
     }
@@ -66,8 +66,7 @@ public final class MessageDaoMySQLTest {
 
       assertTrue("There are 2 messages saved in the database.", messages.size() == 2);
 
-      messageDaoMySQL.deleteMessage(message1);
-      messageDaoMySQL.deleteMessage(message2);
+      messageDaoMySQL.clearMessages();
 
     } catch (SQLException ex) {
       ex.printStackTrace();
