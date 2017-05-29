@@ -68,7 +68,9 @@ public final class Server {
     this.relay = relay;
 
     // restore state here!
-    persistence.loadUsers();
+    persistence.loadUsers(model, view);
+    persistence.loadConversations(model, view);
+    persistence.loadMessages(model, view);
 
     timeline.scheduleNow(new Runnable() {
       @Override

@@ -53,7 +53,7 @@ public final class MessageDaoMySQLTest {
   @Test
   public void testUpdateMessage() {
     try {
-      MessageDaoMySQL.updateMessage(message1, message2.id, message2.id);
+      messageDaoMySQL.updateMessage(message1, message2.id, message2.id);
     } catch (SQLException ex) {
       ex.printStackTrace();
     }

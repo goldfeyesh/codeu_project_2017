@@ -65,7 +65,7 @@ public final class ConversationDaoMySQLTest {
 
     try {
 
-      ConversationDaoMySQL.updateConversation(conv1, message.id, message.id);
+      conversationDaoMySQL.updateConversation(conv1, message.id, message.id);
 
       String firstmsg = conv1.firstMessage.toString();
       String lastmsg = conv1.lastMessage.toString();

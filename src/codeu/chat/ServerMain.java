@@ -65,19 +65,13 @@ final class ServerMain {
 
     // Data Persistence: default is nullpersistence which will not interact with database
     DataPersistence persistence = new NullPersistence();
-    if (args.length > 3) {
-      int idx = 3;
-      while (idx < args.length) {
-        if (args[idx].equals("mysql")) {
-          //persistence = new MySQLPersistence();
-        }
-      }
-
+    int minIndex = 4;     // relayAddress creation needs to know index to begin parsing,
+                          // so update the index if we chose to persist data with mysql
+    if (args.length > 4 && args[4].equals("mysql")) {
+      persistence = new MySQLPersistence();
+      minIndex++;
     }
-
-    final RemoteAddress relayAddress = args.length > 4 ?
-                                       RemoteAddress.parse(args[4]) :
-                                       null;
+    RemoteAddress relayAddress = args.length > minIndex ? RemoteAddress.parse(args[minIndex]) : null;
 
     try (
         final ConnectionSource serverSource = ServerConnectionSource.forPort(myPort);

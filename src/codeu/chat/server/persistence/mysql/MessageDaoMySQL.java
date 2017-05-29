@@ -2,7 +2,6 @@ package codeu.chat.server.persistence.mysql;
 import java.sql.*;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
 import java.text.SimpleDateFormat;
@@ -65,7 +64,7 @@ public class MessageDaoMySQL implements MessageDao {
     }
   }
 
-  public static void updateMessage(Message message, Uuid next, Uuid previous) throws SQLException {
+  public void updateMessage(Message message, Uuid next, Uuid previous) throws SQLException {
     try {
       String query = "update conversation_messages set next_id = ?, previous_id = ? where id = ?";
       Connection conn = MySQLConnectionFactory.getInstance().getConnection();
@@ -111,7 +110,7 @@ public class MessageDaoMySQL implements MessageDao {
     return message;
   }
 
-  public List<Message> getAllMessages() throws SQLException {
+  public ArrayList<Message> getAllMessages() throws SQLException {
     ArrayList<Message> messages = new ArrayList<Message>();
     try {
       Connection conn = MySQLConnectionFactory.getInstance().getConnection();

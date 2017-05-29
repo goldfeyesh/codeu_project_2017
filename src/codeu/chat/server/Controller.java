@@ -72,6 +72,7 @@ public final class Controller implements RawController, BasicController {
 
       message = new Message(id, Uuid.NULL, Uuid.NULL, creationTime, author, body);
       model.add(message);
+      persistence.saveMessage(message);
       LOG.info("Message added: %s", message.id);
 
       // Find and update the previous "last" message so that it's "next" value
@@ -86,6 +87,8 @@ public final class Controller implements RawController, BasicController {
       } else {
         final Message lastMessage = model.messageById().first(foundConversation.lastMessage);
         lastMessage.next = message.id;
+
+        persistence.updateMessage(lastMessage, message.id, lastMessage.previous);
       }
 
       // If the first message points to NULL it means that the conversation was empty and that
@@ -101,12 +104,13 @@ public final class Controller implements RawController, BasicController {
 
       foundConversation.lastMessage = message.id;
 
+      persistence.updateConversation(foundConversation, foundConversation.firstMessage, message.id);
+
       if (!foundConversation.users.contains(foundUser)) {
         foundConversation.users.add(foundUser.id);
+        // TODO: add user to conversation database too somehow
       }
     }
-    persistence.saveMessage(message, foundConversation);                 // add user to database
-    persistence.saveConversation(foundConversation);  // update conversation in database
     return message;
   }
 
@@ -149,10 +153,10 @@ public final class Controller implements RawController, BasicController {
     if (foundOwner != null && isIdFree(id)) {
       conversation = new Conversation(id, owner, creationTime, title);
       model.add(conversation);
+      persistence.saveConversation(conversation);
 
       LOG.info("Conversation added: " + conversation.id);
     }
-    persistence.saveConversation(conversation);
     return conversation;
   }
 

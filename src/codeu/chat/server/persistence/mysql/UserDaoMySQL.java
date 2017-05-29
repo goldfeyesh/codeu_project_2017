@@ -3,7 +3,6 @@ import java.sql.*;
 import java.io.IOException;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
 import java.text.SimpleDateFormat;
@@ -88,7 +87,7 @@ public class UserDaoMySQL implements UserDao {
     return user;
   }
 
-  public List<User> getAllUsers() throws SQLException{
+  public ArrayList<User> getAllUsers() throws SQLException{
     ArrayList<User> users = new ArrayList<User>();
     try {
       Connection conn = MySQLConnectionFactory.getInstance().getConnection();

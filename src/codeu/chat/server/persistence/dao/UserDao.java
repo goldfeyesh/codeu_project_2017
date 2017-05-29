@@ -1,6 +1,6 @@
 package codeu.chat.server.persistence.dao;
 
-import java.sql.*;
+import java.lang.Exception;
 
 import java.util.Collection;
 import java.util.List;
@@ -19,6 +19,6 @@ import codeu.chat.server.persistence.dao.ResultNotFoundException;
 
 public interface UserDao {
 
-  void saveUser(User user) throws SQLException, ResultNotFoundException;
-  List<User> getAllUsers() throws SQLException;
+  void saveUser(User user) throws Exception;
+  List<User> getAllUsers() throws Exception;
 }

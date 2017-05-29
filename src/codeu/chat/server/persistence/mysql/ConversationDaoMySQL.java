@@ -3,7 +3,6 @@ import java.sql.*;
 import java.io.IOException;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
 import java.text.SimpleDateFormat;
@@ -23,7 +22,7 @@ import codeu.chat.util.Logger;
 
 public class ConversationDaoMySQL implements ConversationDao {
 
-  public void saveConversation(Conversation conversation) {
+  public void saveConversation(Conversation conversation) throws SQLException {
     try {
       Connection conn = MySQLConnectionFactory.getInstance().getConnection();
 
@@ -45,11 +44,11 @@ public class ConversationDaoMySQL implements ConversationDao {
       conn.close();
 
     } catch(SQLException ex) {
-       ex.printStackTrace();
+      throw ex;
     }
   }
 
-  public static void updateConversation(Conversation conversation, Uuid first_message_id, Uuid last_message_id) throws SQLException{
+  public void updateConversation(Conversation conversation, Uuid first_message_id, Uuid last_message_id) throws SQLException{
     try {
       String query = "update conversation set first_message_id = ?, last_message_id = ? where id = ?";
       Connection conn = MySQLConnectionFactory.getInstance().getConnection();
@@ -65,6 +64,24 @@ public class ConversationDaoMySQL implements ConversationDao {
       throw ex;
     }
   }
+
+  // TODO: this method
+  // public void updateConversationUsers(Conversation conversation, Uuid user_id) throws SQLException {
+  //   try {
+  //     String query = "update conversation_messages set first_message_id = ?, last_message_id = ? where id = ?";
+  //     Connection conn = MySQLConnectionFactory.getInstance().getConnection();
+  //     PreparedStatement preparedStmt = conn.prepareStatement(query);
+  //
+  //     preparedStmt.setString(1, first_message_id.toString());
+  //     preparedStmt.setString(2, last_message_id.toString());
+  //     preparedStmt.setString(3, conversation.id.toString());
+  //
+  //     preparedStmt.executeUpdate();
+  //     conn.close();
+  //   } catch (SQLException ex) {
+  //     throw ex;
+  //   }
+  // }
 
   public Conversation getConversation(Uuid id) throws SQLException, ResultNotFoundException {
     Conversation conversation = null;
@@ -93,7 +110,7 @@ public class ConversationDaoMySQL implements ConversationDao {
     return conversation;
   }
 
-  public List<Conversation> getAllConversations() throws SQLException {
+  public ArrayList<Conversation> getAllConversations() throws SQLException {
 
     ArrayList<Conversation> conversations = new ArrayList<Conversation>();
     try {
