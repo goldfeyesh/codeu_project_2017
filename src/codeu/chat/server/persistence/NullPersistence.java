@@ -7,8 +7,8 @@ import codeu.chat.util.Uuid;
 import codeu.chat.server.Model;
 import codeu.chat.server.View;
 
-
-// minimum implementation does not interact with database.
+// in case user does not indicate that they want to persist data in a database,
+// null implementation does not interact with database.
 public class NullPersistence implements DataPersistence {
 
   public void saveUser(User user){
@@ -26,13 +26,12 @@ public class NullPersistence implements DataPersistence {
   public void updateMessage(Message message, Uuid next, Uuid previous){
   }
 
-  public void loadUsers(Model model, View view) {
+  public void addConversationUser(Conversation conversation, User user){
+
   }
 
-  public void loadConversations(Model model, View view) {
-  }
 
-  public  void loadMessages(Model model, View view){
+  public void restoreState(Model model) {
   }
 
 }

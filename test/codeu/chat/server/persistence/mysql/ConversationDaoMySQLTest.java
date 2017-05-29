@@ -46,12 +46,14 @@ public final class ConversationDaoMySQLTest {
   @Test
   public void testSaveConversation() {
     try {
-      conversationDaoMySQL.clearConversations();
       conversationDaoMySQL.saveConversation(conv1);
       conversationDaoMySQL.saveConversation(conv2);
       Conversation foundConversation = conversationDaoMySQL.getConversation(conv1.id);
       assertTrue("id of found conversation matches id of saved conversation",
                 foundConversation.id.toString().equals(conv1.id.toString()));
+
+      conversationDaoMySQL.deleteConversation(conv1);
+      conversationDaoMySQL.deleteConversation(conv2);
 
     } catch (SQLException ex) {
       ex.printStackTrace();
@@ -64,6 +66,7 @@ public final class ConversationDaoMySQLTest {
   public void testUpdateConversation() {
 
     try {
+      conversationDaoMySQL.saveConversation(conv1);
 
       conversationDaoMySQL.updateConversation(conv1, message.id, message.id);
 
@@ -71,6 +74,8 @@ public final class ConversationDaoMySQLTest {
       String lastmsg = conv1.lastMessage.toString();
       assertTrue("The first_message_id and last_message_id of conv1 are not null and equivalent",
                  firstmsg.equals(lastmsg));
+
+      conversationDaoMySQL.deleteConversation(conv1);
 
     } catch (SQLException ex) {
       ex.printStackTrace();
@@ -80,11 +85,14 @@ public final class ConversationDaoMySQLTest {
   @Test
   public void testGetAllConversations() {
     try {
+      conversationDaoMySQL.saveConversation(conv1);
+      conversationDaoMySQL.saveConversation(conv2);
+
       List<Conversation> conversations = conversationDaoMySQL.getAllConversations();
+      assertTrue("There are conversations saved in the database.", conversations.size() > 0);
 
-      assertTrue("There are 2 conversations saved in the database.", conversations.size() == 2);
-
-      conversationDaoMySQL.clearConversations();
+      conversationDaoMySQL.deleteConversation(conv1);
+      conversationDaoMySQL.deleteConversation(conv2);
     } catch (SQLException ex) {
       ex.printStackTrace();
     }

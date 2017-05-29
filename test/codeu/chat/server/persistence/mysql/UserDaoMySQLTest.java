@@ -66,8 +66,9 @@ public final class UserDaoMySQLTest {
 
       List<User> users = userDaoMySQL.getAllUsers();
 
-      assertTrue("There are 2 users saved in the database.", users.size() == 2);
-      userDaoMySQL.clearUsers();
+      assertTrue("There are users saved in the database.", users.size() > 0);
+      userDaoMySQL.deleteUser(user);
+      userDaoMySQL.deleteUser(user2);
     } catch (SQLException ex) {
       ex.printStackTrace();
     }

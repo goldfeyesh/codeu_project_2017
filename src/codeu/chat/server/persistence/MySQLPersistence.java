@@ -1,3 +1,4 @@
+
 package codeu.chat.server.persistence;
 
 import java.util.Collection;
@@ -14,7 +15,6 @@ import codeu.chat.server.persistence.mysql.ConversationDaoMySQL;
 import codeu.chat.server.persistence.mysql.MessageDaoMySQL;
 
 import codeu.chat.server.Model;
-import codeu.chat.server.View;
 
 import codeu.chat.util.Uuid;
 import codeu.chat.util.Logger;
@@ -22,15 +22,13 @@ import codeu.chat.util.Time;
 
 import java.sql.SQLException;
 
-
+// in case a user specifies they want to persist data with mysql database
 public class MySQLPersistence implements DataPersistence {
 
-  // fields
   UserDaoMySQL userDaoMySQL;
   ConversationDaoMySQL conversationDaoMySQL;
   MessageDaoMySQL messageDaoMySQL;
 
-  // constructor
   public MySQLPersistence() {
     userDaoMySQL = new UserDaoMySQL();
     conversationDaoMySQL = new ConversationDaoMySQL();
@@ -61,6 +59,14 @@ public class MySQLPersistence implements DataPersistence {
     }
   }
 
+  public void addConversationUser(Conversation conversation, User user) {
+    try {
+      conversationDaoMySQL.addConversationUser(conversation, user);
+    } catch (SQLException ex) {
+      ex.printStackTrace();
+    }
+  }
+
   public void updateConversation(Conversation conversation, Uuid first_message_id, Uuid last_message_id) {
     try {
       conversationDaoMySQL.updateConversation(conversation, first_message_id, last_message_id);
@@ -77,42 +83,41 @@ public class MySQLPersistence implements DataPersistence {
     }
   }
 
-  public void loadUsers(Model model, View view) {
+  public void loadUsers(Model model) {
     try {
       ArrayList<User> users = userDaoMySQL.getAllUsers();
       for (User user : users) {
-        if (view.findUser(user.id) == null) {   // only load in users that are not already saved
-          model.add(user);
-        }
+        model.add(user);
       }
     } catch (SQLException ex) {
       ex.printStackTrace();
     }
   }
 
-  public void loadConversations(Model model, View view) {
+  public void loadConversations(Model model) {
     try {
       ArrayList<Conversation> conversations = conversationDaoMySQL.getAllConversations();
       for (Conversation conversation : conversations) {
-        if (view.findConversation(conversation.id) == null) {   // only load in conversations that are not already saved
           model.add(conversation);
-        }
       }
     } catch (SQLException ex) {
       ex.printStackTrace();
     }
   }
-  public void loadMessages(Model model, View view) {
+  public void loadMessages(Model model) {
     try {
       ArrayList<Message> messages = messageDaoMySQL.getAllMessages();
       for (Message message : messages) {
-        if (view.findMessage(message.id) == null) {   // only load in conversations that are not already saved
-          model.add(message);
-        }
+        model.add(message);
       }
     } catch (SQLException ex) {
       ex.printStackTrace();
     }
   }
 
+  public void restoreState(Model model) {
+    this.loadUsers(model);
+    this.loadConversations(model);
+    this.loadMessages(model);
+  }
 }

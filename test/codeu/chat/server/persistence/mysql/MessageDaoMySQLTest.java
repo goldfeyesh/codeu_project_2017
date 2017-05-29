@@ -42,9 +42,10 @@ public final class MessageDaoMySQLTest {
   @Test
   public void testSaveMessage() {
     try {
-      messageDaoMySQL.clearMessages();
       messageDaoMySQL.saveMessage(message1);
       messageDaoMySQL.saveMessage(message2);
+      messageDaoMySQL.deleteMessage(message1);
+      messageDaoMySQL.deleteMessage(message2);
     } catch (SQLException ex) {
       ex.printStackTrace();
     }
@@ -53,7 +54,12 @@ public final class MessageDaoMySQLTest {
   @Test
   public void testUpdateMessage() {
     try {
+      messageDaoMySQL.saveMessage(message1);
+      messageDaoMySQL.saveMessage(message2);
+
       messageDaoMySQL.updateMessage(message1, message2.id, message2.id);
+      messageDaoMySQL.deleteMessage(message1);
+      messageDaoMySQL.deleteMessage(message2);
     } catch (SQLException ex) {
       ex.printStackTrace();
     }
@@ -62,11 +68,14 @@ public final class MessageDaoMySQLTest {
   @Test
   public void testGetAllMessages() {
     try {
+      messageDaoMySQL.saveMessage(message1);
+      messageDaoMySQL.saveMessage(message2);
+
       List<Message> messages = messageDaoMySQL.getAllMessages();
+      assertTrue("There are Messages saved in the database.", messages.size() > 0);
 
-      assertTrue("There are 2 messages saved in the database.", messages.size() == 2);
-
-      messageDaoMySQL.clearMessages();
+      messageDaoMySQL.deleteMessage(message1);
+      messageDaoMySQL.deleteMessage(message2);
 
     } catch (SQLException ex) {
       ex.printStackTrace();

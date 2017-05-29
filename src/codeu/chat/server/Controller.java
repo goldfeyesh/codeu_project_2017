@@ -108,7 +108,7 @@ public final class Controller implements RawController, BasicController {
 
       if (!foundConversation.users.contains(foundUser)) {
         foundConversation.users.add(foundUser.id);
-        // TODO: add user to conversation database too somehow
+        persistence.addConversationUser(foundConversation, foundUser);
       }
     }
     return message;

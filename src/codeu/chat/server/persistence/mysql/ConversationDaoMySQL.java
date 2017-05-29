@@ -66,22 +66,21 @@ public class ConversationDaoMySQL implements ConversationDao {
   }
 
   // TODO: this method
-  // public void updateConversationUsers(Conversation conversation, Uuid user_id) throws SQLException {
-  //   try {
-  //     String query = "update conversation_messages set first_message_id = ?, last_message_id = ? where id = ?";
-  //     Connection conn = MySQLConnectionFactory.getInstance().getConnection();
-  //     PreparedStatement preparedStmt = conn.prepareStatement(query);
-  //
-  //     preparedStmt.setString(1, first_message_id.toString());
-  //     preparedStmt.setString(2, last_message_id.toString());
-  //     preparedStmt.setString(3, conversation.id.toString());
-  //
-  //     preparedStmt.executeUpdate();
-  //     conn.close();
-  //   } catch (SQLException ex) {
-  //     throw ex;
-  //   }
-  // }
+  public void addConversationUser(Conversation conversation, User user) throws SQLException {
+    try {
+      String query = "insert into conversation_users (user_id, conversation_id) values(?, ?)";
+      Connection conn = MySQLConnectionFactory.getInstance().getConnection();
+      PreparedStatement preparedStmt = conn.prepareStatement(query);
+
+      preparedStmt.setString(1, user.id.toString());
+      preparedStmt.setString(2, conversation.id.toString());
+
+      preparedStmt.executeUpdate();
+      conn.close();
+    } catch (SQLException ex) {
+      throw ex;
+    }
+  }
 
   public Conversation getConversation(Uuid id) throws SQLException, ResultNotFoundException {
     Conversation conversation = null;
@@ -102,12 +101,26 @@ public class ConversationDaoMySQL implements ConversationDao {
       else {
         throw new ResultNotFoundException("Could not find the conversation with id:" + id.toString());
       }
+      conn.close();
     } catch (SQLException ex) {
       throw ex;
     } catch (IOException ex) {
       ex.printStackTrace();
     }
     return conversation;
+  }
+
+  public void deleteConversation(Conversation conversation) throws SQLException {
+    String query = "delete from conversation where id = ?";
+    try {
+      Connection conn = MySQLConnectionFactory.getInstance().getConnection();
+      PreparedStatement stmt = conn.prepareStatement(query);
+      stmt.setString(1, conversation.id.toString());
+      stmt.executeUpdate();
+      conn.close();
+    } catch (SQLException ex) {
+      throw ex;
+    }
   }
 
   public ArrayList<Conversation> getAllConversations() throws SQLException {
@@ -128,23 +141,12 @@ public class ConversationDaoMySQL implements ConversationDao {
                                                      time, rset.getString("title"));
         conversations.add(conversation);
       }
+      conn.close();
     } catch (SQLException ex) {
       throw ex;
     } catch (IOException ex) {
       ex.printStackTrace();
     }
     return conversations;
-  }
-
-  public void clearConversations() throws SQLException {
-    try {
-      Connection conn = MySQLConnectionFactory.getInstance().getConnection();
-      Statement stmt = conn.createStatement();
-      String query = "delete from conversation";
-
-      stmt.executeUpdate(query);
-    } catch (SQLException ex) {
-      throw ex;
-    }
   }
 }

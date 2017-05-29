@@ -25,8 +25,7 @@ public interface DataPersistence {
   void updateConversation(Conversation conversation, Uuid first_message_id, Uuid last_message_id);
   void updateMessage(Message message, Uuid next, Uuid previous);
 
-  void loadUsers(Model model, View view);
-  void loadConversations(Model model, View view);
-  void loadMessages(Model model, View view);
+  void addConversationUser(Conversation conversation, User user);
 
+  void restoreState(Model model);
 }

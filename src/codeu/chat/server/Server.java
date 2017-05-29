@@ -64,13 +64,10 @@ public final class Server {
     this.id = id;
     this.secret = Arrays.copyOf(secret, secret.length);
 
-    this.controller = new Controller(id, model, persistence);  // controller would get the persistence param
+    this.controller = new Controller(id, model, persistence);
     this.relay = relay;
 
-    // restore state here!
-    persistence.loadUsers(model, view);
-    persistence.loadConversations(model, view);
-    persistence.loadMessages(model, view);
+    persistence.restoreState(model); // persistence restores users, conversations, messages
 
     timeline.scheduleNow(new Runnable() {
       @Override
