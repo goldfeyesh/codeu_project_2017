@@ -90,7 +90,7 @@ public final class MessagePanel extends JPanel {
 	titleColorsPanelC.gridx = 1;
 	titleColorsPanelC.gridy = 0;
 	titleColorsPanelC.anchor = GridBagConstraints.PAGE_START;
-		
+
 	// messageConversationLabel is an instance variable of Conversation panel
     // can update it.
     messageConversationLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -114,7 +114,7 @@ public final class MessagePanel extends JPanel {
 
     // messageListModel is an instance variable so Conversation panel
     // can update it.
-    JList<String> userList = new JList<>(messageListModel);
+    final JList<String> userList = new JList<>(messageListModel);
     userList.setCellRenderer(new MyListRenderer());
     userList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     userList.setVisibleRowCount(15);
@@ -130,7 +130,7 @@ public final class MessagePanel extends JPanel {
     final GridBagConstraints buttonPanelC = new GridBagConstraints();
 
     final JLabel messagePrompt = new JLabel("Send message: ");
-	
+
 	// Message to add area
     final JTextArea messageField = new JTextArea(3, 25);
     final JScrollPane messageScroll = new JScrollPane(messageField);
@@ -176,10 +176,10 @@ public final class MessagePanel extends JPanel {
         } else if (!clientContext.conversation.hasCurrent()) {
           JOptionPane.showMessageDialog(MessagePanel.this, "You must select a conversation.");
         } else {
-          
+
           String messageText = messageField.getText();
           int indx = colorList.getSelectedIndex();
-          
+
           //{"Black", "Red", "Blue", "Cyan", "Gray", "Green", "Orange", "Pink", "Yellow"}
           // May want to change to something else in front of string
           if (indx == 1) messageText = messageText+"\u0002"; // Red text
@@ -190,7 +190,7 @@ public final class MessagePanel extends JPanel {
           else if (indx == 6) messageText = messageText+"\u0007"; // Orange text
           else if (indx == 7) messageText = messageText+"\u0008"; // Pink text
 		  else if (indx == 8) messageText = messageText+"\u0009"; // Yellow text
-          
+
           System.out.println(messageText);
           messageField.setText("");
           if (messageText != null && messageText.length() > 0) {
@@ -201,7 +201,7 @@ public final class MessagePanel extends JPanel {
             userList.setSelectedIndex(1);
             userList.setSelectionForeground(Color.RED);
             MessagePanel.this.getAllMessages(clientContext.conversation.getCurrent());
-            
+
           }
         }
       }
@@ -210,7 +210,7 @@ public final class MessagePanel extends JPanel {
     // Panel is set up. If there is a current conversation, Populate the conversation list.
     getAllMessages(clientContext.conversation.getCurrent());
   }
-  
+
   // List Cell Renderer used for changing the color of the text
   class MyListRenderer implements ListCellRenderer {
   	JLabel renderer;
@@ -218,7 +218,7 @@ public final class MessagePanel extends JPanel {
   	public MyListRenderer() {
   		renderer = new JLabel();
   	}
-  	public Component getListCellRendererComponent(  JList table, Object value, int row, 
+  	public Component getListCellRendererComponent(  JList table, Object value, int row,
   													boolean selected, boolean focus) {
   		renderer.setText(value.toString());
   		renderer.setForeground(Color.black);
@@ -234,7 +234,7 @@ public final class MessagePanel extends JPanel {
   		return renderer;
   	}
   }
-  
+
   // Populate ListModel
   // TODO: don't refetch messages if current conversation not changed
   private void getAllMessages(ConversationSummary conversation) {
