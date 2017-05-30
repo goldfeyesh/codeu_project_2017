@@ -16,4 +16,5 @@
 
 set -e
 
-java -cp ./third_party/junit4.jar:./bin codeu.chat.TestRunner
+# java -cp ./third_party/junit4.jar:./bin codeu.chat.TestRunner
+java -classpath './third_party/junit4.jar;./third_party/mysql-connector-java-5.1.42-bin.jar;./bin' codeu.chat.TestRunner

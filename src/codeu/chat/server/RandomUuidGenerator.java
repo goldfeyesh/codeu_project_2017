@@ -12,34 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package codeu.chat.server;
+package codeu.chat.common;
 
 import java.util.Random;
 
-import codeu.chat.common.Uuid;
-import codeu.chat.common.Uuids;
+import codeu.chat.util.Uuid;
 
 // Create a new random uuid. Uuids from this generator are random
 // but are not guaranteed to be unique. Checking uniqueness is left
 // to the caller.
-final class RandomUuidGenerator implements Uuid.Generator {
-
-  private static final class BasicUuid implements Uuid {
-
-    private final Uuid root;
-    private final int id;
-
-    public BasicUuid(Uuid root, int id) {
-      this.root = root;
-      this.id = id;
-    }
-
-    @Override
-    public Uuid root() { return root; }
-
-    @Override
-    public int id() { return id; }
-  }
+public final class RandomUuidGenerator implements Uuid.Generator {
 
   private final Uuid commonRoot;
   private final Random random;
@@ -51,6 +33,6 @@ final class RandomUuidGenerator implements Uuid.Generator {
 
   @Override
   public Uuid make() {
-    return Uuids.complete(new BasicUuid(commonRoot, random.nextInt()));
+    return new Uuid(commonRoot, random.nextInt());
   }
 }

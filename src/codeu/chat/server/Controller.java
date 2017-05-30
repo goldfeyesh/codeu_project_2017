@@ -19,12 +19,14 @@ import java.util.Collection;
 import codeu.chat.common.BasicController;
 import codeu.chat.common.Conversation;
 import codeu.chat.common.Message;
+import codeu.chat.common.RandomUuidGenerator;
 import codeu.chat.common.RawController;
-import codeu.chat.common.Time;
 import codeu.chat.common.User;
-import codeu.chat.common.Uuid;
-import codeu.chat.common.Uuids;
 import codeu.chat.util.Logger;
+import codeu.chat.util.Time;
+import codeu.chat.util.Uuid;
+
+import codeu.chat.server.persistence.*;
 
 public final class Controller implements RawController, BasicController {
 
@@ -32,10 +34,15 @@ public final class Controller implements RawController, BasicController {
 
   private final Model model;
   private final Uuid.Generator uuidGenerator;
+  private DataPersistence persistence;
 
-  public Controller(Uuid serverId, Model model) {
+  public Controller(Uuid serverId, Model model, DataPersistence persistence) {
     this.model = model;
     this.uuidGenerator = new RandomUuidGenerator(serverId, System.currentTimeMillis());
+    this.persistence = persistence;
+    if (persistence == null) {  // in case a persistence has not been created yet,
+      this.persistence = new NullPersistence();   // just use the null persistence.
+    }
   }
 
   @Override
@@ -63,14 +70,15 @@ public final class Controller implements RawController, BasicController {
 
     if (foundUser != null && foundConversation != null && isIdFree(id)) {
 
-      message = new Message(id, Uuids.NULL, Uuids.NULL, creationTime, author, body);
+      message = new Message(id, Uuid.NULL, Uuid.NULL, creationTime, author, body);
       model.add(message);
+      persistence.saveMessage(message);            // save the message into the database.
       LOG.info("Message added: %s", message.id);
 
       // Find and update the previous "last" message so that it's "next" value
       // will point to the new message.
 
-      if (Uuids.equals(foundConversation.lastMessage, Uuids.NULL)) {
+      if (Uuid.equals(foundConversation.lastMessage, Uuid.NULL)) {
 
         // The conversation has no messages in it, that's why the last message is NULL (the first
         // message should be NULL too. Since there is no last message, then it is not possible
@@ -79,6 +87,8 @@ public final class Controller implements RawController, BasicController {
       } else {
         final Message lastMessage = model.messageById().first(foundConversation.lastMessage);
         lastMessage.next = message.id;
+                                              // update the message in database.
+        persistence.updateMessage(lastMessage, lastMessage.next, lastMessage.previous);
       }
 
       // If the first message points to NULL it means that the conversation was empty and that
@@ -86,19 +96,22 @@ public final class Controller implements RawController, BasicController {
       // not change.
 
       foundConversation.firstMessage =
-          Uuids.equals(foundConversation.firstMessage, Uuids.NULL) ?
+          Uuid.equals(foundConversation.firstMessage, Uuid.NULL) ?
           message.id :
           foundConversation.firstMessage;
 
       // Update the conversation to point to the new last message as it has changed.
 
       foundConversation.lastMessage = message.id;
+                                                   // update message in database
+      persistence.updateConversation(foundConversation, foundConversation.firstMessage, foundConversation.lastMessage);
 
       if (!foundConversation.users.contains(foundUser)) {
         foundConversation.users.add(foundUser.id);
+                                                   // add user to conversation in database
+        persistence.addConversationUser(foundConversation, foundUser);
       }
     }
-
     return message;
   }
 
@@ -111,6 +124,7 @@ public final class Controller implements RawController, BasicController {
 
       user = new User(id, name, creationTime);
       model.add(user);
+      persistence.saveUser(user);
 
       LOG.info(
           "newUser success (user.id=%s user.name=%s user.time=%s)",
@@ -140,10 +154,10 @@ public final class Controller implements RawController, BasicController {
     if (foundOwner != null && isIdFree(id)) {
       conversation = new Conversation(id, owner, creationTime, title);
       model.add(conversation);
+      persistence.saveConversation(conversation);
 
       LOG.info("Conversation added: " + conversation.id);
     }
-
     return conversation;
   }
 
