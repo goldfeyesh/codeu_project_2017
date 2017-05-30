@@ -14,7 +14,6 @@ import codeu.chat.util.Time;
 
 import codeu.chat.common.Message;
 import codeu.chat.server.persistence.dao.MessageDao;
-import codeu.chat.server.persistence.dao.ResultNotFoundException;
 
 import codeu.chat.util.Uuid;
 import codeu.chat.util.Logger;
@@ -81,11 +80,11 @@ public class MessageDaoMySQL implements MessageDao {
     }
   }
 
-  public Message getMessage(Uuid id) throws SQLException, ResultNotFoundException {
+  public Message getMessage(Uuid id) throws SQLException {
     Message message = null;
     try {
       Connection conn = MySQLConnectionFactory.getInstance().getConnection();
-      String query = "select id, next_id, previous_id, time_created, author_id, content from messages where id = ?;";
+      String query = "select id, next_id, previous_id, time_created, author_id, content from conversation_messages where id = ?;";
       PreparedStatement preparedStmt = conn.prepareStatement(query);
       preparedStmt.setString(1, id.toString());
       ResultSet rset = preparedStmt.executeQuery();
@@ -98,9 +97,6 @@ public class MessageDaoMySQL implements MessageDao {
                                       time,
                                       Uuid.fromToString(rset.getString("author_id")),
                                       rset.getString("content"));
-      }
-      else {
-        throw new ResultNotFoundException("Could not find the message with id:" + id.toString());
       }
     } catch (SQLException ex) {
       throw ex;

@@ -16,7 +16,6 @@ import codeu.chat.common.Message;
 import codeu.chat.util.Uuid;
 import codeu.chat.server.persistence.*;
 import codeu.chat.server.persistence.mysql.*;
-import codeu.chat.server.persistence.dao.ResultNotFoundException;
 
 import codeu.chat.server.Model;
 
@@ -48,6 +47,7 @@ public final class ConversationDaoMySQLTest {
     try {
       conversationDaoMySQL.saveConversation(conv1);
       conversationDaoMySQL.saveConversation(conv2);
+
       Conversation foundConversation = conversationDaoMySQL.getConversation(conv1.id);
       assertTrue("id of found conversation matches id of saved conversation",
                 foundConversation.id.toString().equals(conv1.id.toString()));
@@ -57,8 +57,6 @@ public final class ConversationDaoMySQLTest {
 
     } catch (SQLException ex) {
       ex.printStackTrace();
-    } catch (ResultNotFoundException e) {
-      e.printStackTrace();
     }
   }
 
@@ -68,12 +66,15 @@ public final class ConversationDaoMySQLTest {
     try {
       conversationDaoMySQL.saveConversation(conv1);
 
-      conversationDaoMySQL.updateConversation(conv1, message.id, message.id);
+      conversationDaoMySQL.updateConversation(conv1, message.id, conv1.lastMessage);
 
-      String firstmsg = conv1.firstMessage.toString();
-      String lastmsg = conv1.lastMessage.toString();
-      assertTrue("The first_message_id and last_message_id of conv1 are not null and equivalent",
-                 firstmsg.equals(lastmsg));
+      Conversation foundconv = conversationDaoMySQL.getConversation(conv1.id);
+
+      String foundConvFirstMsgID = foundconv.firstMessage.toString();
+
+      assertTrue("The first_message_id of conv1 = " + message.id +
+                 " is same as foundconversation's first message = " + foundConvFirstMsgID,
+                 foundConvFirstMsgID.equals(message.id.toString()));
 
       conversationDaoMySQL.deleteConversation(conv1);
 

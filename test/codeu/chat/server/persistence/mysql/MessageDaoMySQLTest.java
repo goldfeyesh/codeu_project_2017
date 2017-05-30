@@ -58,6 +58,12 @@ public final class MessageDaoMySQLTest {
       messageDaoMySQL.saveMessage(message2);
 
       messageDaoMySQL.updateMessage(message1, message2.id, message2.id);
+
+      Message message = messageDaoMySQL.getMessage(message1.id);
+
+      assertTrue("message1's next is message2", message.next.toString().equals(message2.id.toString()));
+      assertTrue("message1's previous is message2", message.previous.toString().equals(message2.id.toString()));
+
       messageDaoMySQL.deleteMessage(message1);
       messageDaoMySQL.deleteMessage(message2);
     } catch (SQLException ex) {

@@ -15,7 +15,6 @@ import codeu.chat.util.Time;
 
 import codeu.chat.common.User;
 import codeu.chat.server.persistence.dao.ConversationDao;
-import codeu.chat.server.persistence.dao.ResultNotFoundException;
 
 import codeu.chat.util.Uuid;
 import codeu.chat.util.Logger;
@@ -82,11 +81,11 @@ public class ConversationDaoMySQL implements ConversationDao {
     }
   }
 
-  public Conversation getConversation(Uuid id) throws SQLException, ResultNotFoundException {
+  public Conversation getConversation(Uuid id) throws SQLException {
     Conversation conversation = null;
     try {
       Connection conn = MySQLConnectionFactory.getInstance().getConnection();
-      String query = "select id, owner_id, time_created, title from conversation where id = ?;";
+      String query = "select id, owner_id, time_created, title, first_message_id, last_message_id from conversation where id = ?;";
       PreparedStatement preparedStmt = conn.prepareStatement(query);
       preparedStmt.setString(1, id.toString());
       ResultSet rset = preparedStmt.executeQuery();
@@ -97,9 +96,12 @@ public class ConversationDaoMySQL implements ConversationDao {
         conversation = new Conversation(Uuid.fromToString(rset.getString("id")),
                                                      Uuid.fromToString(rset.getString("owner_id")),
                                                      time, rset.getString("title"));
-      }
-      else {
-        throw new ResultNotFoundException("Could not find the conversation with id:" + id.toString());
+        String firstMsgId = rset.getString("first_message_id");
+        String lastMsgId = rset.getString("last_message_id");
+
+        conversation.firstMessage = firstMsgId != null ? Uuid.fromToString(firstMsgId) : null;
+
+        conversation.lastMessage = lastMsgId != null ? Uuid.fromToString(lastMsgId) : null;
       }
       conn.close();
     } catch (SQLException ex) {
@@ -139,6 +141,13 @@ public class ConversationDaoMySQL implements ConversationDao {
         Conversation conversation = new Conversation(Uuid.fromToString(rset.getString("id")),
                                                      Uuid.fromToString(rset.getString("owner_id")),
                                                      time, rset.getString("title"));
+
+        String firstMsgId = rset.getString("first_message_id");
+        String lastMsgId = rset.getString("last_message_id");
+
+        conversation.firstMessage = firstMsgId != null ? Uuid.fromToString(firstMsgId) : null;
+
+        conversation.lastMessage = lastMsgId != null ? Uuid.fromToString(lastMsgId) : null;
         conversations.add(conversation);
       }
       conn.close();

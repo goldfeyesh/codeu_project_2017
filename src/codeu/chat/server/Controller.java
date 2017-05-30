@@ -88,7 +88,7 @@ public final class Controller implements RawController, BasicController {
         final Message lastMessage = model.messageById().first(foundConversation.lastMessage);
         lastMessage.next = message.id;
 
-        persistence.updateMessage(lastMessage, message.id, lastMessage.previous);
+        persistence.updateMessage(lastMessage, lastMessage.next, lastMessage.previous);
       }
 
       // If the first message points to NULL it means that the conversation was empty and that
@@ -104,7 +104,7 @@ public final class Controller implements RawController, BasicController {
 
       foundConversation.lastMessage = message.id;
 
-      persistence.updateConversation(foundConversation, foundConversation.firstMessage, message.id);
+      persistence.updateConversation(foundConversation, foundConversation.firstMessage, foundConversation.lastMessage);
 
       if (!foundConversation.users.contains(foundUser)) {
         foundConversation.users.add(foundUser.id);
