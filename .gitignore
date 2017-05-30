@@ -10,3 +10,6 @@ run_relay.sh
 *.sh
 *.sh
 *.sh
+make.sh
+chat_server_log.log
+chat_server_log.log.lck

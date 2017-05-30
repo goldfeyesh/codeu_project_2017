@@ -1,5 +1,5 @@
 // creates connection to MySQL database
-// this class is a singleton so that other classes that need can make these database connections.
+// this class is a singleton so classes that need can make database connections easily.
 
 package codeu.chat.server.persistence.mysql;
 import java.sql.*;

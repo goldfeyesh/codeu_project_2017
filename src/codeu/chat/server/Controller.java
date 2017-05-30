@@ -40,8 +40,8 @@ public final class Controller implements RawController, BasicController {
     this.model = model;
     this.uuidGenerator = new RandomUuidGenerator(serverId, System.currentTimeMillis());
     this.persistence = persistence;
-    if (persistence == null) {
-      this.persistence = new NullPersistence();
+    if (persistence == null) {  // in case a persistence has not been created yet,
+      this.persistence = new NullPersistence();   // just use the null persistence.
     }
   }
 
@@ -72,7 +72,7 @@ public final class Controller implements RawController, BasicController {
 
       message = new Message(id, Uuid.NULL, Uuid.NULL, creationTime, author, body);
       model.add(message);
-      persistence.saveMessage(message);
+      persistence.saveMessage(message);            // save the message into the database.
       LOG.info("Message added: %s", message.id);
 
       // Find and update the previous "last" message so that it's "next" value
@@ -87,7 +87,7 @@ public final class Controller implements RawController, BasicController {
       } else {
         final Message lastMessage = model.messageById().first(foundConversation.lastMessage);
         lastMessage.next = message.id;
-
+                                              // update the message in database.
         persistence.updateMessage(lastMessage, lastMessage.next, lastMessage.previous);
       }
 
@@ -103,11 +103,12 @@ public final class Controller implements RawController, BasicController {
       // Update the conversation to point to the new last message as it has changed.
 
       foundConversation.lastMessage = message.id;
-
+                                                   // update message in database
       persistence.updateConversation(foundConversation, foundConversation.firstMessage, foundConversation.lastMessage);
 
       if (!foundConversation.users.contains(foundUser)) {
         foundConversation.users.add(foundUser.id);
+                                                   // add user to conversation in database
         persistence.addConversationUser(foundConversation, foundUser);
       }
     }

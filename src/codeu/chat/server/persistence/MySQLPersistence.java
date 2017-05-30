@@ -1,28 +1,23 @@
+// this class uses the Data Access Objects specific to MySQL to persist data
 
 package codeu.chat.server.persistence;
 
-import java.util.Collection;
-import java.util.ArrayList;
-
 import codeu.chat.common.BasicController;
-import codeu.chat.common.User;
 import codeu.chat.common.Conversation;
 import codeu.chat.common.Message;
 import codeu.chat.common.RawController;
-
-import codeu.chat.server.persistence.mysql.UserDaoMySQL;
+import codeu.chat.common.User;
+import codeu.chat.server.Model;
 import codeu.chat.server.persistence.mysql.ConversationDaoMySQL;
 import codeu.chat.server.persistence.mysql.MessageDaoMySQL;
-
-import codeu.chat.server.Model;
-
-import codeu.chat.util.Uuid;
+import codeu.chat.server.persistence.mysql.UserDaoMySQL;
 import codeu.chat.util.Logger;
 import codeu.chat.util.Time;
-
+import codeu.chat.util.Uuid;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
 
-// in case a user specifies they want to persist data with mysql database
 public class MySQLPersistence implements DataPersistence {
 
   UserDaoMySQL userDaoMySQL;

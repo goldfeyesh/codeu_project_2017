@@ -39,7 +39,6 @@ public final class UserDaoMySQLTest {
   @Test
   public void testSaveUser() {
     try {
-      userDaoMySQL.clearUsers();
       userDaoMySQL.saveUser(user);
       userDaoMySQL.saveUser(user2);
 
@@ -49,6 +48,7 @@ public final class UserDaoMySQLTest {
 
       userDaoMySQL.deleteUser(user);
       userDaoMySQL.deleteUser(user2);
+
     } catch (SQLException ex) {
       System.out.println("SQLException");
       ex.printStackTrace();
@@ -67,6 +67,7 @@ public final class UserDaoMySQLTest {
       List<User> users = userDaoMySQL.getAllUsers();
 
       assertTrue("There are users saved in the database.", users.size() > 0);
+      
       userDaoMySQL.deleteUser(user);
       userDaoMySQL.deleteUser(user2);
     } catch (SQLException ex) {
