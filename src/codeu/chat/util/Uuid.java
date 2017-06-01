@@ -171,6 +171,7 @@ public final class Uuid {
     return String.format("[UUID:%s]", build.substring(1));  // index of 1 to skip initial '.'
   }
 
+
   private static void buildString(Uuid current, StringBuilder build) {
     final long mask = (1L << 32) - 1;  // removes sign extension
     if (current != null) {
@@ -184,6 +185,12 @@ public final class Uuid {
   // Create a uuid from a sting.
   public static Uuid parse(String string) throws IOException {
     return parse(null, string.split("\\."), 0);
+  }
+
+  public static Uuid fromToString(String uuidString) throws IOException {
+    // extract the part of the string that is Uuid
+    uuidString = uuidString.substring(6, uuidString.length() - 1);
+    return parse(uuidString);
   }
 
   private static Uuid parse(final Uuid root, String[] tokens, int index) throws IOException {

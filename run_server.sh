@@ -31,6 +31,8 @@ if [[ "${TEAM_ID}" == "" || "${TEAM_SECRET}" == "" || "${PORT}" == "" || "${PERS
   echo '                 connections. This can be anything from 1024 to 65535.'
   echo 'PERSISTENT DIR : The directory where the server can save data that will'
   echo '                 exists between runs.'
+  echo 'DATA PERSIST   : This value is optional. If you want to persist data'
+  echo '                 with database, put database name. Example: "mysql"'
   echo 'RELAY ADDRESS  : This value is optional. If you want to connect to a '
   echo '                 relay server, the address must be IP@PORT where IP is'
   echo '                 the ip address of the relay server and PORT is the port'
@@ -40,15 +42,15 @@ if [[ "${TEAM_ID}" == "" || "${TEAM_SECRET}" == "" || "${PORT}" == "" || "${PERS
 fi
 
 
-cd './bin'
+#cd './bin'
 if [ "${RELAY_ADDRESS}" == "" ] ; then
-  java codeu.chat.ServerMain \
+  java -classpath './third_party/mysql-connector-java-5.1.42-bin.jar;./bin' codeu.chat.ServerMain \
       "${TEAM_ID}" \
       "${TEAM_SECRET}" \
       "${PORT}" \
       "${PERSISTENT_DIR}"
 else
-  java codeu.chat.ServerMain \
+  java -classpath './third_party/mysql-connector-java-5.1.42-bin.jar;./bin' codeu.chat.ServerMain \
       "${TEAM_ID}" \
       "${TEAM_SECRET}" \
       "${PORT}" \

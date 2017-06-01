@@ -2,3 +2,14 @@ third_party/junit4.jar
 test.sh
 third_party/junit4.jar
 make.sh
+make.sh
+*.sh
+test.sh
+run_client.sh
+run_relay.sh
+*.sh
+*.sh
+*.sh
+make.sh
+chat_server_log.log
+chat_server_log.log.lck

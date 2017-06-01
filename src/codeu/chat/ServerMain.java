@@ -17,6 +17,8 @@ package codeu.chat;
 
 import java.io.IOException;
 
+import codeu.chat.server.persistence.*;
+
 import codeu.chat.common.Relay;
 import codeu.chat.common.Secret;
 import codeu.chat.server.NoOpRelay;
@@ -61,9 +63,15 @@ final class ServerMain {
     // of the server.
     final String persistentPath = args[3];
 
-    final RemoteAddress relayAddress = args.length > 4 ?
-                                       RemoteAddress.parse(args[4]) :
-                                       null;
+    // Data Persistence: default is nullpersistence which will not interact with database
+    DataPersistence persistence = new NullPersistence();
+    int minIndex = 4;     // relayAddress creation needs to know index to begin parsing,
+                          // so update the index if we chose to persist data with mysql
+    if (args.length > 4 && args[4].equals("mysql")) {
+      persistence = new MySQLPersistence();
+      minIndex++;
+    }
+    RemoteAddress relayAddress = args.length > minIndex ? RemoteAddress.parse(args[minIndex]) : null;
 
     try (
         final ConnectionSource serverSource = ServerConnectionSource.forPort(myPort);
@@ -71,7 +79,7 @@ final class ServerMain {
     ) {
 
       LOG.info("Starting server...");
-      runServer(id, secret, serverSource, relaySource);
+      runServer(id, secret, serverSource, relaySource, persistence);
 
     } catch (IOException ex) {
 
@@ -83,13 +91,14 @@ final class ServerMain {
   private static void runServer(Uuid id,
                                 byte[] secret,
                                 ConnectionSource serverSource,
-                                ConnectionSource relaySource) {
+                                ConnectionSource relaySource,
+                                DataPersistence persistence) {
 
     final Relay relay = relaySource == null ?
                         new NoOpRelay() :
                         new RemoteRelay(relaySource);
 
-    final Server server = new Server(id, secret, relay);
+    final Server server = new Server(id, secret, relay, persistence); //add param for persistence
 
     LOG.info("Created server.");
 

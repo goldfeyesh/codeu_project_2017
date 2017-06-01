@@ -22,6 +22,7 @@ import codeu.chat.common.Conversation;
 import codeu.chat.common.Message;
 import codeu.chat.common.RawController;
 import codeu.chat.common.User;
+import codeu.chat.server.persistence.*;
 import codeu.chat.util.Time;
 import codeu.chat.util.Uuid;
 
@@ -33,11 +34,12 @@ public final class RawControllerTest {
   private Uuid userId;
   private Uuid conversationId;
   private Uuid messageId;
+  private DataPersistence persistence;
 
   @Before
   public void doBefore() {
     model = new Model();
-    controller = new Controller(Uuid.NULL, model);
+    controller = new Controller(Uuid.NULL, model, persistence);
 
     userId = new Uuid(1);
     conversationId = new Uuid(2);
