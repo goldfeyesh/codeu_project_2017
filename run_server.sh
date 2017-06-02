@@ -42,7 +42,7 @@ if [[ "${TEAM_ID}" == "" || "${TEAM_SECRET}" == "" || "${PORT}" == "" || "${PERS
 fi
 
 
-#cd './bin'
+cd './bin'
 if [ "${RELAY_ADDRESS}" == "" ] ; then
   java -classpath './third_party/mysql-connector-java-5.1.42-bin.jar;./bin' codeu.chat.ServerMain \
       "${TEAM_ID}" \
